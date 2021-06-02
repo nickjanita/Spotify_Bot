@@ -1,44 +1,46 @@
 const fs = require('fs');
 const SpotifyWebApi = require('spotify-web-api-node');
-const token = "BQC0K4Fcw7mDwYqrG6OETp0eZWlyShi5NQtuuILUrrZSnMsbD5GwTgKJLX1aw5WjdDbfYs-mCFz5mCajcsF3YXklJSDAO_5PERiPSasPDc4y_Hn8PYYCCJj_vwCa6fjMmDtkMlT5qneBrs0khojWXo6rqXECT6uM30v60akqHrj5sbuKWMxkW2j0GIeRRwzKHKCmBpkvdI5_XORegjHg28OJ07vwMGWhgIv6e_HeQpk7TsMl0wbCNouu"
 const Discord = require('discord.js');
+
+const discordToken = "ODQ3OTc4OTIwNjg2NzgwNDY3.YLF76Q.DXIj6c3zBtoDSZlZWle0sXTjJHc";
+const spotifyToken = "BQBer6_x7sgDjajG7Js7oGmuS7w-ZfHV0Z_AhJM5TLV7DzMwwg8tx-Y2hL20IEfVDPHpMgAw2XAILJBtlcKvsKF3PV35ifFt_sqfGMeDagM72qeKHlsPlGWjeBm0MG4O6k7U2yWXHP8tp9JsGpZvHZB1lE9-AQWKKbQUqqM8ciwM84gI0WUA4GRPbltwSQDraZ6Z9FE6Pn694h07N4ASONquo2_EIdAssS0tWueIge5CQCB-mY1x1cAs"
+const prefix = "!";
+
 const spotifyApi = new SpotifyWebApi();
-spotifyApi.setAccessToken(token);
+spotifyApi.setAccessToken(spotifyToken);
+
 const client = new Discord.Client();
+
+client.commands = new Discord.Collection();
+const commandFiles = fs.readdirSync('./commands/').filter(file=>file.endsWith('.js'));
+for (const file of commandFiles) {
+	const command = require(`./commands/${file}`);
+    console.log(command)
+	client.commands.set(command.name, command);
+
+}
 
 client.once('ready', message =>{
     console.log("Spotify Bot is On!");
 });
 
-
-
- //Get profile data
- async function getmydata(){
-    const me = await spotifyApi.getMe();
-    var names = await getPlaylists(me.body.id);
-    return names
- }
-
-async function getPlaylists(id){
-    const data = await spotifyApi.getUserPlaylists(id);
-    var names = [data.body.items.length];
-    let i = 0;
-    for(let playlist of data.body.items){
-        names[i] = playlist.name;
-        ++i;
-    }
-    return names;
-}
-async function playlists(message){
-    var names =  await getmydata()
-    message.channel.send("Here are your current playlists!")
-    message.channel.send(names);        
-} 
+ 
   client.on('message', message =>{
-      
-        if(message.content === '!getme'){
-            playlists(message)
-        }
+    if (!message.content.startsWith(prefix)) return;
+    
+	const args = message.content.slice(prefix.length).trim().split(/ +/);
+	const command = args.shift().toLowerCase();
+    console.log(client.commands)
+	if (!client.commands.has(command)) return;
+    console.log('We are here');
+	try {
+		client.commands.get(command).execute(message, spotifyApi);
+        message.reply("Running Command...")
+	} catch (error) {
+		console.error(error);
+		message.reply('there was an error trying to execute that command!');
+	}
+    
     
  })
- client.login('ODQ3OTc4OTIwNjg2NzgwNDY3.YLF76Q.Zln-MKglrchk9_PwPKNcAuXmu9o');
+ client.login(discordToken);
