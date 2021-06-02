@@ -1,6 +1,6 @@
 const fs = require('fs');
 const SpotifyWebApi = require('spotify-web-api-node');
-const token = "BQB1uUgju-1drfqTg6CyKn6nX7k8TLVRiiZORVDNJVXsOl_r_KvCLvzFBByxDs86_mEEghCi1rKgKxq83pBDCkAsuqalXkU3FxZXTUwCvG9Gnz1fsmmISBJyjJBMJLqiIBSswZVglYu8wH7yoClSK1gMm1GFEH3nOTUJx_vlapbrV07iMcZYMQ2Q3bBoyVeHNr31f1zkFiFD0QJAr5z38a8yfBoSvVitz2-KUjpoapoileEK9vMEFU6e"
+const token = "BQC0K4Fcw7mDwYqrG6OETp0eZWlyShi5NQtuuILUrrZSnMsbD5GwTgKJLX1aw5WjdDbfYs-mCFz5mCajcsF3YXklJSDAO_5PERiPSasPDc4y_Hn8PYYCCJj_vwCa6fjMmDtkMlT5qneBrs0khojWXo6rqXECT6uM30v60akqHrj5sbuKWMxkW2j0GIeRRwzKHKCmBpkvdI5_XORegjHg28OJ07vwMGWhgIv6e_HeQpk7TsMl0wbCNouu"
 const Discord = require('discord.js');
 const spotifyApi = new SpotifyWebApi();
 spotifyApi.setAccessToken(token);
@@ -13,14 +13,10 @@ client.once('ready', message =>{
 
 
  //Get profile data
- function getmydata(){
-     (async () => {
-         const me = await spotifyApi.getMe();
-         var names = getPlaylists(me.body.id);
-         console.log(names)
-     })().catch(e => {
-         console.error(e);
-     });
+ async function getmydata(){
+    const me = await spotifyApi.getMe();
+    var names = await getPlaylists(me.body.id);
+    return names
  }
 
 async function getPlaylists(id){
@@ -31,21 +27,18 @@ async function getPlaylists(id){
         names[i] = playlist.name;
         ++i;
     }
-    console.log(names)
-    return "test";
+    return names;
 }
- 
- client.on('message', message =>{
-    if(message.content === '!getme'){
-        (async ()=>{
-            var names = await getmydata();
-        })
-        console.log(names)
-        let msg = "";
-        // for(let name of playlists){
-        //     msg = name+ "\n"
-        // }
-        message.reply(msg);
-    }
+async function playlists(message){
+    var names =  await getmydata()
+    message.channel.send("Here are your current playlists!")
+    message.channel.send(names);        
+} 
+  client.on('message', message =>{
+      
+        if(message.content === '!getme'){
+            playlists(message)
+        }
+    
  })
- client.login('ODQ3OTc4OTIwNjg2NzgwNDY3.YLF76Q.gcW0_T8XLJxNSJmHDQ_8_UvSH1w');
+ client.login('ODQ3OTc4OTIwNjg2NzgwNDY3.YLF76Q.Zln-MKglrchk9_PwPKNcAuXmu9o');
