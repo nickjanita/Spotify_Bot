@@ -15,7 +15,6 @@
  */
 const SpotifyWebApi = require('./node_modules/spotify-web-api-node');
 const express = require('./node_modules/express');
-
 const scopes = [
   'ugc-image-upload',
   'user-read-playback-state',
@@ -40,8 +39,8 @@ const scopes = [
 
 const spotifyApi = new SpotifyWebApi({
   redirectUri: 'http://localhost:8888/callback',
-  clientId: '5d85dd224f3b488cac27812ede8cd327',
-  clientSecret: '2f685871e7e0434f94187412881ca405'
+  clientId: config.clientid,
+  clientSecret: config.clientSecret
 });
 
 const app = express();
